@@ -5,5 +5,5 @@ mile39 - geodata server
 * long-running queries
 
 
-+ rust + lmdb
++ rust + lmdb +
 
