@@ -4,3 +4,6 @@ mile39 - geodata server
 * parallel query processing
 * long-running queries
 
+
++ rust + lmdb
+
