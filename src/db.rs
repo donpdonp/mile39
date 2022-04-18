@@ -1,5 +1,5 @@
-use std::path::Path;
 use lmdb::Database;
+use std::path::Path;
 
 pub fn open() -> Result<Database, lmdb::Error> {
     let builder = lmdb::Environment::new();
