@@ -1,6 +1,5 @@
 use std::net::SocketAddr;
 use std::net::TcpListener;
-use std::net::TcpStream;
 use std::str::FromStr;
 
 pub struct Net {
@@ -17,6 +16,3 @@ pub fn setup(addr: &str) -> Net {
     };
 }
 
-impl Net {
-    pub fn connect(&self, stream: TcpStream) {}
-}
