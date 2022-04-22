@@ -9,12 +9,14 @@ pub struct Peer {
 }
 
 pub fn read(adb: Arc<crate::db::Db>, stream: TcpStream) {
-    let db = Arc::try_unwrap(adb).unwrap();
-    let tx = db.db.begin_rw_txn().unwrap();
+//    let db = Arc::try_unwrap(adb).unwrap();
+//    let tx = db.db.begin_rw_txn().unwrap();
     let peer = Peer { stream: stream };
     peer.notice();
     for line in peer.feed_lines(){
-        println!("next line {}", line.unwrap());
+        let parsed = json::parse(&line.unwrap()).unwrap();
+        println!("next line {}", parsed);
+        println!("key {}", parsed["key"]);
     }
 }
 
