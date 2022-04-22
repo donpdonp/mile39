@@ -2,12 +2,15 @@ use std::io::BufRead;
 use std::io::BufReader;
 use std::io::Lines;
 use std::net::TcpStream;
+use std::sync::Arc;
 
 pub struct Peer {
     pub stream: TcpStream,
 }
 
-pub fn setup(stream: TcpStream) {
+pub fn read(adb: Arc<crate::db::Db>, stream: TcpStream) {
+    let db = Arc::try_unwrap(adb).unwrap();
+    let tx = db.db.begin_rw_txn().unwrap();
     let peer = Peer { stream: stream };
     peer.notice();
     for line in peer.feed_lines(){

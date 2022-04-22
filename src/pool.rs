@@ -13,8 +13,8 @@ impl Pool {
         return self.pool.len()
     }
 
-    pub fn push<F>(&mut self, str: F)  where
+    pub fn push<F>(&mut self, func: F)  where
       F: FnOnce() -> () + std::marker::Send + 'static{
-        self.pool.push(spawn(str));
+        self.pool.push(spawn(func));
     }
 }
