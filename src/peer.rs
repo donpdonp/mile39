@@ -8,9 +8,8 @@ pub struct Peer {
     pub stream: TcpStream,
 }
 
-pub fn read(adb: Arc<crate::db::Db>, stream: TcpStream) {
-//    let db = Arc::try_unwrap(adb).unwrap();
-//    let tx = db.db.begin_rw_txn().unwrap();
+pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
+    let tx = db.db.begin_rw_txn().unwrap();
     let peer = Peer { stream: stream };
     peer.notice();
     for line in peer.feed_lines(){
