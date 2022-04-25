@@ -3,7 +3,6 @@ mod net;
 mod peer;
 mod pool;
 
-extern crate json;
 
 use std::sync::Arc;
 

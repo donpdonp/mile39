@@ -4,18 +4,25 @@ use std::io::Lines;
 use std::net::TcpStream;
 use std::sync::Arc;
 
+use lmdb::Transaction;
+
 pub struct Peer {
     pub stream: TcpStream,
 }
 
 pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
-    let tx = db.db.begin_rw_txn().unwrap();
     let peer = Peer { stream: stream };
     peer.notice();
     for line in peer.feed_lines(){
-        let parsed = json::parse(&line.unwrap()).unwrap();
-        println!("next line {}", parsed);
-        println!("key {}", parsed["key"]);
+        let mut parsed = json::parse(&line.unwrap()).unwrap();
+        let key = parsed["key"].take_string().unwrap();
+        let mut tx = db.env.begin_rw_txn().unwrap();
+        let result = tx.get(db.db, &key);
+        match result {
+            Err(_) => println!("{:?}: not found", key),
+            Ok(v) => println!("{:?}: {:?}", key, v)
+        }
+        //let c = tx.open_rw_cursor(db.db);
     }
 }
 

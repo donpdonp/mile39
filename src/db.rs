@@ -1,14 +1,15 @@
 use std::path::Path;
-use lmdb::Environment;
+use lmdb::{Environment,Database};
 
 #[derive(Debug)]
 pub struct Db {
-   pub db: Environment
+   pub env: Environment,
+   pub db: Database
 }
 
 pub fn open() -> Db {
     let builder = lmdb::Environment::new();
     let env = builder.open(Path::new("lmdb-data")).unwrap();
-    let _ = env.open_db(None);
-    return Db{db: env}
+    let db = env.open_db(None).unwrap();
+    return Db{env: env, db: db}
 }
