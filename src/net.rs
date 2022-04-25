@@ -15,4 +15,3 @@ pub fn setup(addr: &str) -> Net {
         listener: listener,
     };
 }
-

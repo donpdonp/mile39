@@ -3,7 +3,6 @@ mod net;
 mod peer;
 mod pool;
 
-
 use std::sync::Arc;
 
 fn main() {
@@ -17,9 +16,8 @@ fn main() {
         let dbc = db.clone();
         match stream {
             Err(_) => println!("socket accept err"),
-            Ok(stream) => pool.push(||{peer::read(dbc, stream)}),
+            Ok(stream) => pool.push(|| peer::read(dbc, stream)),
         }
         println!("threadpool {}", pool.len())
     }
 }
-
