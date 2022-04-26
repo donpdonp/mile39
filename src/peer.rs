@@ -7,11 +7,14 @@ use std::sync::Arc;
 use lmdb::Cursor;
 use lmdb::Transaction;
 
+use serde_json;
+
 pub struct Peer {
     pub stream: TcpStream,
 }
 
 pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
+    let location = crate::nouns::location::Location{};
     let peer = Peer { stream: stream };
     peer.notice();
     for line in peer.feed_lines() {
