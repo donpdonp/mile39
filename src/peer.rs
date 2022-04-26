@@ -26,18 +26,25 @@ pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
                 tx.put(db.db, &key, &value, lmdb::WriteFlags::empty())
                     .unwrap();
             }
-            Ok(v) => println!("{:?}: {:?}", key, v),
+            Ok(v) => println!("{:?}: {:?}", key, String::from_utf8_lossy(v)),
         }
-        {
-            let c = tx.open_rw_cursor(db.db);
-            for k in c.iter() {
-                println!(
-                    "{:?}",
-                    String::from_utf8_lossy(k.get(None, None, 0).unwrap().1)
-                );
-            }
+        tx.commit().unwrap();
+        dump(&db);
+    }
+}
+
+pub fn dump(db: &crate::db::Db) {
+    println!("---db dump---");
+    let ro = db.env.begin_ro_txn().unwrap();
+    {
+        let mut c = ro.open_ro_cursor(db.db).unwrap();
+        let mut count = 0;
+        for ck in c.iter() {
+            count += count;
+            let k = String::from_utf8_lossy(ck.0);
+            let v = String::from_utf8_lossy(ck.1);
+            println!("{} {:?} {:?}", count, k, v);
         }
-        tx.commit();
     }
 }
 
