@@ -17,16 +17,15 @@ pub struct Peer {
 }
 
 pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
-    let example = Command {
-        verb: "A".to_string(),
-        noun: Nouns::Location(Location {}),
-    };
-    println!("{}", serde_json::to_string(&example).unwrap());
+    //    let example = Command {verb: "A".to_string(), noun: Nouns::Location(Location{}) };
+    //    println!("{}", serde_json::to_string(&example).unwrap());
     let peer = Peer { stream: stream };
     peer.notice();
     for line in peer.feed_lines() {
         let command: Command = serde_json::from_str(&line.unwrap()).unwrap();
         println!("{}", serde_json::to_string(&command).unwrap());
+        let loc : Location = serde_json::from_str(&command.noun.to_string()).unwrap();
+        println!("noun part: {} {} ", serde_json::to_string(&loc).unwrap(), &command.noun.to_string());
         let mut tx = db.env.begin_rw_txn().unwrap();
         let result = tx.get(db.db, &command.verb);
         match result {

@@ -10,5 +10,5 @@ pub enum Nouns {
 #[derive(Serialize, Deserialize)]
 pub struct Command {
     pub verb: String,
-    pub noun: Nouns,
+    pub noun: serde_json::Value,
 }
