@@ -1,8 +1,8 @@
 mod db;
 mod net;
+mod nouns;
 mod peer;
 mod pool;
-mod nouns;
 
 use std::sync::Arc;
 

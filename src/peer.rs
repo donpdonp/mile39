@@ -9,27 +9,34 @@ use lmdb::Transaction;
 
 use serde_json;
 
+use crate::nouns::command::{Command, Nouns};
+use crate::nouns::location::Location;
+
 pub struct Peer {
     pub stream: TcpStream,
 }
 
 pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
-    let location = crate::nouns::location::Location{};
+    let example = Command {
+        verb: "A".to_string(),
+        noun: Nouns::Location(Location {}),
+    };
+    println!("{}", serde_json::to_string(&example).unwrap());
     let peer = Peer { stream: stream };
     peer.notice();
     for line in peer.feed_lines() {
-        let mut parsed = json::parse(&line.unwrap()).unwrap();
-        let key = parsed["key"].take_string().unwrap();
+        let command: Command = serde_json::from_str(&line.unwrap()).unwrap();
+        println!("{}", serde_json::to_string(&command).unwrap());
         let mut tx = db.env.begin_rw_txn().unwrap();
-        let result = tx.get(db.db, &key);
+        let result = tx.get(db.db, &command.verb);
         match result {
             Err(_) => {
                 let value = "value";
-                println!("writing {:?} {:?}", key, value);
-                tx.put(db.db, &key, &value, lmdb::WriteFlags::empty())
+                println!("writing {:?} {:?}", command.verb, value);
+                tx.put(db.db, &command.verb, &value, lmdb::WriteFlags::empty())
                     .unwrap();
             }
-            Ok(v) => println!("{:?}: {:?}", key, String::from_utf8_lossy(v)),
+            Ok(v) => println!("{:?}: {:?}", command.verb, String::from_utf8_lossy(v)),
         }
         tx.commit().unwrap();
         dump(&db);

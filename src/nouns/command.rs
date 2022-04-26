@@ -1,7 +1,14 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
+
+use crate::nouns::location::Location;
+
+#[derive(Serialize, Deserialize)]
+pub enum Nouns {
+    Location(Location),
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct Command {
-    noun Location
+    pub verb: String,
+    pub noun: Nouns,
 }
