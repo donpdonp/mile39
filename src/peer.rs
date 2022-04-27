@@ -9,8 +9,7 @@ use lmdb::Transaction;
 
 use serde_json;
 
-use crate::nouns::command::{Command, Nouns};
-use crate::nouns::location::Location;
+use crate::nouns::*;
 
 pub struct Peer {
     pub stream: TcpStream,
@@ -22,9 +21,9 @@ pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
     let peer = Peer { stream: stream };
     peer.notice();
     for line in peer.feed_lines() {
-        let command: Command = serde_json::from_str(&line.unwrap()).unwrap();
+        let command: command::Command = serde_json::from_str(&line.unwrap()).unwrap();
         println!("{}", serde_json::to_string(&command).unwrap());
-        let loc : Location = serde_json::from_value(command.noun).unwrap();
+        let loc : location::Location = serde_json::from_value(command.noun).unwrap();
         println!("noun part: {}", serde_json::to_string(&loc).unwrap());
         let mut tx = db.env.begin_rw_txn().unwrap();
         let result = tx.get(db.db, &command.verb);
