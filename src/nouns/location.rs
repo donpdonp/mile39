@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Location {
-    lat: f32,
-    lng: f32,
+    pub id: String,
+    pub lat: f32,
+    pub lng: f32,
 }

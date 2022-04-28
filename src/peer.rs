@@ -29,7 +29,7 @@ pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
 pub fn do_command(db: &crate::db::Db, command: command::Command) {
     match command.verb.as_str() {
         "write" => write_op(db, command),
-        _ => ()
+        _ => (),
     }
 }
 
@@ -40,8 +40,16 @@ pub fn write_op(db: &crate::db::Db, command: command::Command) {
         Err(_) => {
             let value = "value";
             println!("writing {:?} {:?}", command.verb, value);
-            tx.put(db.db, &command.verb, &value, lmdb::WriteFlags::empty())
-                .unwrap();
+            match &command.noun {
+                Nouns::Location(l) => tx
+                    .put(
+                        db.db,
+                        &command.verb,
+                        &l.id,
+                        lmdb::WriteFlags::empty(),
+                    )
+                    .unwrap(),
+            }
         }
         Ok(v) => println!("{:?}: {:?}", command.verb, String::from_utf8_lossy(v)),
     }
