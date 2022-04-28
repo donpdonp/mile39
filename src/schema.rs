@@ -12,15 +12,15 @@ pub struct Schema {
 pub struct Index {
     name: String,
     fields: Vec<String>,
-    options: Options
+    options: Options,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Options {
     #[serde(default)]
-    multi: bool
+    multi: bool,
 }
-pub fn new(filename: &str) -> Vec<Schema> {
+pub fn from_file(filename: &str) -> Vec<Schema> {
     let file = File::open(filename).unwrap();
     let reader = BufReader::new(file);
 

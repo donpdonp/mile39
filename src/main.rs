@@ -9,7 +9,7 @@ use std::sync::Arc;
 
 fn main() {
     let db = Arc::new(db::open());
-    let schema = schema::new("schema.json");
+    let schemas = schema::from_file("schema.json");
 
     let addr = "127.0.0.1:8888";
     let net = net::setup(addr);
@@ -22,6 +22,6 @@ fn main() {
             Err(_) => println!("socket accept err"),
             Ok(stream) => pool.push(|| peer::read(dbc, stream)),
         }
-        println!("threadpool {}", pool.len())
+        println!("threadpool size {}", pool.len())
     }
 }

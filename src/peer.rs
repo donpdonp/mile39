@@ -16,27 +16,36 @@ pub struct Peer {
 }
 
 pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
-    //    let example = Command {verb: "A".to_string(), noun: Nouns::Location(Location{}) };
-    //    println!("{}", serde_json::to_string(&example).unwrap());
     let peer = Peer { stream: stream };
     peer.notice();
     for line in peer.feed_lines() {
         let command: command::Command = serde_json::from_str(&line.unwrap()).unwrap();
         println!("{}", serde_json::to_string(&command).unwrap());
-        let mut tx = db.env.begin_rw_txn().unwrap();
-        let result = tx.get(db.db, &command.verb);
-        match result {
-            Err(_) => {
-                let value = "value";
-                println!("writing {:?} {:?}", command.verb, value);
-                tx.put(db.db, &command.verb, &value, lmdb::WriteFlags::empty())
-                    .unwrap();
-            }
-            Ok(v) => println!("{:?}: {:?}", command.verb, String::from_utf8_lossy(v)),
-        }
-        tx.commit().unwrap();
+        do_command(&db, command);
         dump(&db);
     }
+}
+
+pub fn do_command(db: &crate::db::Db, command: command::Command) {
+    match command.verb.as_str() {
+        "write" => write_op(db, command),
+        _ => ()
+    }
+}
+
+pub fn write_op(db: &crate::db::Db, command: command::Command) {
+    let mut tx = db.env.begin_rw_txn().unwrap();
+    let result = tx.get(db.db, &command.verb);
+    match result {
+        Err(_) => {
+            let value = "value";
+            println!("writing {:?} {:?}", command.verb, value);
+            tx.put(db.db, &command.verb, &value, lmdb::WriteFlags::empty())
+                .unwrap();
+        }
+        Ok(v) => println!("{:?}: {:?}", command.verb, String::from_utf8_lossy(v)),
+    }
+    tx.commit().unwrap();
 }
 
 pub fn dump(db: &crate::db::Db) {
