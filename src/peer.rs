@@ -9,6 +9,7 @@ use lmdb::Transaction;
 
 use serde_json;
 
+use crate::nouns;
 use crate::nouns::*;
 
 pub struct Peer {
@@ -35,23 +36,24 @@ pub fn do_command(db: &crate::db::Db, command: command::Command) {
 
 pub fn write_op(db: &crate::db::Db, noun: Nouns) {
     let mut tx = db.env.begin_rw_txn().unwrap();
-    let schema = db.schemas.iter().find(|&s| s.noun == to_string(&noun));
+    let noun_name = nouns::to_string(&noun);
+    let schema = db.schemas.get(&noun_name);
     if let Some(s) = schema {
-        println!("schema found for {}", s.noun);
+        println!("schema found for {}", noun_name);
+        let index = "abc123";
+        let result = tx.get(db.db, &index);
+        match result {
+            Err(_) => match &noun {
+                Nouns::Location(loc) => {
+                    println!("writing Location {:?}", index);
+                    tx.put(db.db, &index, &loc.id, lmdb::WriteFlags::empty())
+                        .unwrap()
+                }
+            },
+            Ok(v) => println!("found {:?}: {:?}", index, String::from_utf8_lossy(v)),
+        }
+        tx.commit().unwrap();
     }
-    let index = "abc123";
-    let result = tx.get(db.db, &index);
-    match result {
-        Err(_) => match &noun {
-            Nouns::Location(loc) => {
-                println!("writing Location {:?}", index);
-                tx.put(db.db, &index, &loc.id, lmdb::WriteFlags::empty())
-                    .unwrap()
-            }
-        },
-        Ok(v) => println!("found {:?}: {:?}", index, String::from_utf8_lossy(v)),
-    }
-    tx.commit().unwrap();
 }
 
 pub fn dump(db: &crate::db::Db) {
