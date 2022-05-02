@@ -4,21 +4,21 @@ use std::io::BufReader;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Schema {
-    noun: String,
-    indexes: Vec<Index>,
+    pub noun: String,
+    pub indexes: Vec<Index>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Index {
-    name: String,
-    fields: Vec<String>,
-    options: Options,
+    pub name: String,
+    pub fields: Vec<String>,
+    pub options: Options
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Options {
     #[serde(default)]
-    multi: bool,
+    multi: bool
 }
 pub fn from_file(filename: &str) -> Vec<Schema> {
     let file = File::open(filename).unwrap();

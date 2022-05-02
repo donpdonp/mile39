@@ -28,30 +28,28 @@ pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
 
 pub fn do_command(db: &crate::db::Db, command: command::Command) {
     match command.verb.as_str() {
-        "write" => write_op(db, command),
+        "write" => write_op(db, command.noun),
         _ => (),
     }
 }
 
-pub fn write_op(db: &crate::db::Db, command: command::Command) {
+pub fn write_op(db: &crate::db::Db, noun: Nouns) {
     let mut tx = db.env.begin_rw_txn().unwrap();
-    let result = tx.get(db.db, &command.verb);
+    let schema = db.schemas.iter().find(|&s| s.noun == to_string(&noun));
+    if let Some(s) = schema {
+        println!("schema found for {}", s.noun);
+    }
+    let index = "abc123";
+    let result = tx.get(db.db, &index);
     match result {
-        Err(_) => {
-            let value = "value";
-            println!("writing {:?} {:?}", command.verb, value);
-            match &command.noun {
-                Nouns::Location(l) => tx
-                    .put(
-                        db.db,
-                        &command.verb,
-                        &l.id,
-                        lmdb::WriteFlags::empty(),
-                    )
-                    .unwrap(),
+        Err(_) => match &noun {
+            Nouns::Location(loc) => {
+                println!("writing Location {:?}", index);
+                tx.put(db.db, &index, &loc.id, lmdb::WriteFlags::empty())
+                    .unwrap()
             }
-        }
-        Ok(v) => println!("{:?}: {:?}", command.verb, String::from_utf8_lossy(v)),
+        },
+        Ok(v) => println!("found {:?}: {:?}", index, String::from_utf8_lossy(v)),
     }
     tx.commit().unwrap();
 }
@@ -62,10 +60,10 @@ pub fn dump(db: &crate::db::Db) {
     {
         let mut c = ro.open_ro_cursor(db.db).unwrap();
         let mut count = 0;
-        for ck in c.iter() {
+        for kv in c.iter() {
             count += count;
-            let k = String::from_utf8_lossy(ck.0);
-            let v = String::from_utf8_lossy(ck.1);
+            let k = String::from_utf8_lossy(kv.0);
+            let v = String::from_utf8_lossy(kv.1);
             println!("{} {:?} {:?}", count, k, v);
         }
     }
