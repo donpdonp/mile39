@@ -29,24 +29,29 @@ pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
 
 pub fn do_command(db: &crate::db::Db, command: command::Command) {
     match command.verb.as_str() {
-        "write" => write_op(db, command.noun),
+        "write" => write_op(db, &command.noun),
         _ => (),
     }
 }
 
-pub fn write_op(db: &crate::db::Db, noun: Nouns) {
+pub fn write_op(db: &crate::db::Db, noun: &Nouns) {
     let mut tx = db.env.begin_rw_txn().unwrap();
-    let noun_name = nouns::to_string(&noun);
+    let value = serde_json::to_value(noun).unwrap();
+    let (noun_name, noun_value) = nouns::name_value(&value);
     let schema = db.schemas.get(&noun_name);
     if let Some(sch) = schema {
         println!("schema found for {}", noun_name);
         for index in sch.indexes.iter() {
-            let key = index.get_key();
+            let key = index.get_key(&noun_value);
             let result = tx.get(db.db, &key);
             match result {
-                Err(_) => match &noun {
+                Err(_) => match noun {
                     Nouns::Location(loc) => {
-                        println!("writing {} key:{}", noun_name, String::from_utf8_lossy(&key));
+                        println!(
+                            "writing {} key:{}",
+                            noun_name,
+                            String::from_utf8_lossy(&key)
+                        );
                         tx.put(db.db, &key, &loc.id, lmdb::WriteFlags::empty())
                             .unwrap()
                     }
@@ -54,7 +59,7 @@ pub fn write_op(db: &crate::db::Db, noun: Nouns) {
                 Ok(v) => println!("found {:?}: {:?}", index, String::from_utf8_lossy(v)),
             }
         }
-            tx.commit().unwrap();
+        tx.commit().unwrap();
     }
 }
 

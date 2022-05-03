@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 pub mod command;
 pub mod location;
@@ -8,8 +9,9 @@ pub enum Nouns {
     Location(location::Location),
 }
 
-pub fn to_string(noun: &Nouns) -> String {
-    match noun {
-        Nouns::Location(_) => "Location".to_string(),
-    }
+pub fn name_value(value: &serde_json::Value) -> (String, &serde_json::Map<String, Value>) {
+    let jobj = value.as_object().unwrap();
+    let name = jobj.keys().next().unwrap().to_owned();
+    let v = jobj.get(&name).unwrap().as_object().unwrap();
+    (name, v)
 }

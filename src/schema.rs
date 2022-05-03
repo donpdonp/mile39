@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
@@ -18,12 +19,18 @@ pub struct Index {
 }
 
 impl Index {
-    pub fn get_key(&self) -> Vec<u8> {
+    pub fn get_key(&self, value: &serde_json::Map<String, Value>) -> Vec<u8> {
         let mut key = String::new();
         for field in &self.fields {
-            key.push_str(&field)
+            println!("{:?} {}", value, field);
+            if let Some(fv) = value.get(field) {
+                println!("{} {}", field, fv);
+                key.push_str(&fv.to_string())
+            } else {
+                println!("warning: field {} is missing from {}", field, self.name)
+            }
         }
-        return key.as_bytes().to_vec()
+        return key.as_bytes().to_vec();
     }
 }
 
