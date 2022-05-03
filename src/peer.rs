@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use lmdb::Cursor;
 use lmdb::Transaction;
+use lmdb::DatabaseFlags;
 
 use serde_json;
 
@@ -23,7 +24,6 @@ pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
         let command: command::Command = serde_json::from_str(&line.unwrap()).unwrap();
         println!("{}", serde_json::to_string(&command).unwrap());
         do_command(&db, command);
-        dump(&db);
     }
 }
 
@@ -35,15 +35,18 @@ pub fn do_command(db: &crate::db::Db, command: command::Command) {
 }
 
 pub fn write_op(db: &crate::db::Db, noun: &Nouns) {
-    let mut tx = db.env.begin_rw_txn().unwrap();
     let value = serde_json::to_value(noun).unwrap();
     let (noun_name, noun_value) = nouns::name_value(&value);
     let schema = db.schemas.get(&noun_name);
     if let Some(sch) = schema {
-        println!("schema found for {}", noun_name);
         for index in sch.indexes.iter() {
+            println!("before");
+            let index_db = db.env.create_db(Some(&index.name), DatabaseFlags::empty()).unwrap();
+            let mut tx = db.env.begin_rw_txn().unwrap();
+            println!("after");
             let key = index.get_key(&noun_value);
-            let result = tx.get(db.db, &key);
+            println!("schema found for {} {} {}", noun_name, &index.name, String::from_utf8_lossy(&key));
+            let result = tx.get(index_db, &key);
             match result {
                 Err(_) => match noun {
                     Nouns::Location(loc) => {
@@ -52,22 +55,24 @@ pub fn write_op(db: &crate::db::Db, noun: &Nouns) {
                             noun_name,
                             String::from_utf8_lossy(&key)
                         );
-                        tx.put(db.db, &key, &loc.id, lmdb::WriteFlags::empty())
+                        tx.put(index_db, &key, &loc.id, lmdb::WriteFlags::empty())
                             .unwrap()
                     }
                 },
                 Ok(v) => println!("{} {:?}: {:?}", index.name, String::from_utf8_lossy(&key), String::from_utf8_lossy(v)),
             }
+            tx.commit().unwrap();
+            dump(&db, &index.name);
         }
-        tx.commit().unwrap();
     }
 }
 
-pub fn dump(db: &crate::db::Db) {
-    println!("---db dump---");
+pub fn dump(db: &crate::db::Db, name: &str) {
+    println!("---db dump {} ---", name);
+    let ddb = db.env.open_db(Some(&name)).unwrap();
     let ro = db.env.begin_ro_txn().unwrap();
     {
-        let mut c = ro.open_ro_cursor(db.db).unwrap();
+        let mut c = ro.open_ro_cursor(ddb).unwrap();
         let mut count = 0;
         for kv in c.iter() {
             count += count;
