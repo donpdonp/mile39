@@ -22,10 +22,8 @@ impl Index {
     pub fn get_key(&self, value: &serde_json::Map<String, Value>) -> Vec<u8> {
         let mut key = String::new();
         for field in &self.fields {
-            println!("{:?} {}", value, field);
             if let Some(fv) = value.get(field) {
-                println!("{} {}", field, fv);
-                key.push_str(&fv.to_string())
+                key.push_str(fv.as_str().unwrap())
             } else {
                 println!("warning: field {} is missing from {}", field, self.name)
             }
