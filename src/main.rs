@@ -9,7 +9,6 @@ use std::sync::Arc;
 
 fn main() {
     let db = Arc::new(db::open());
-    let schemas = schema::from_file("schema.json");
 
     let addr = "127.0.0.1:8888";
     let net = net::setup(addr);

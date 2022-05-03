@@ -38,21 +38,23 @@ pub fn write_op(db: &crate::db::Db, noun: Nouns) {
     let mut tx = db.env.begin_rw_txn().unwrap();
     let noun_name = nouns::to_string(&noun);
     let schema = db.schemas.get(&noun_name);
-    if let Some(s) = schema {
+    if let Some(sch) = schema {
         println!("schema found for {}", noun_name);
-        let index = "abc123";
-        let result = tx.get(db.db, &index);
-        match result {
-            Err(_) => match &noun {
-                Nouns::Location(loc) => {
-                    println!("writing Location {:?}", index);
-                    tx.put(db.db, &index, &loc.id, lmdb::WriteFlags::empty())
-                        .unwrap()
-                }
-            },
-            Ok(v) => println!("found {:?}: {:?}", index, String::from_utf8_lossy(v)),
+        for index in sch.indexes.iter() {
+            let key = index.get_key();
+            let result = tx.get(db.db, &key);
+            match result {
+                Err(_) => match &noun {
+                    Nouns::Location(loc) => {
+                        println!("writing {} key:{}", noun_name, String::from_utf8_lossy(&key));
+                        tx.put(db.db, &key, &loc.id, lmdb::WriteFlags::empty())
+                            .unwrap()
+                    }
+                },
+                Ok(v) => println!("found {:?}: {:?}", index, String::from_utf8_lossy(v)),
+            }
         }
-        tx.commit().unwrap();
+            tx.commit().unwrap();
     }
 }
 

@@ -10,6 +10,6 @@ pub enum Nouns {
 
 pub fn to_string(noun: &Nouns) -> String {
     match noun {
-        Location => "Location".to_string(),
+        Nouns::Location(_) => "Location".to_string(),
     }
 }

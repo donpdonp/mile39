@@ -3,11 +3,10 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 
-pub type Schemas = HashMap<String, Vec<Index>>;
+pub type Schemas = HashMap<String, Schema>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Schema {
-    pub noun: String,
     pub indexes: Vec<Index>,
 }
 
@@ -16,6 +15,16 @@ pub struct Index {
     pub name: String,
     pub fields: Vec<String>,
     pub options: Options,
+}
+
+impl Index {
+    pub fn get_key(&self) -> Vec<u8> {
+        let mut key = String::new();
+        for field in &self.fields {
+            key.push_str(&field)
+        }
+        return key.as_bytes().to_vec()
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
