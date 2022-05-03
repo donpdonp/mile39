@@ -56,7 +56,7 @@ pub fn write_op(db: &crate::db::Db, noun: &Nouns) {
                             .unwrap()
                     }
                 },
-                Ok(v) => println!("found {:?}: {:?}", index, String::from_utf8_lossy(v)),
+                Ok(v) => println!("{} {:?}: {:?}", index.name, String::from_utf8_lossy(&key), String::from_utf8_lossy(v)),
             }
         }
         tx.commit().unwrap();
