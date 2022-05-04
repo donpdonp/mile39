@@ -1,5 +1,3 @@
-use std::io::BufRead;
-use std::io::BufReader;
 use std::io::Lines;
 use std::net::TcpStream;
 use std::sync::Arc;
@@ -10,21 +8,13 @@ use lmdb::Transaction;
 
 use serde_json;
 
+use crate::db;
 use crate::nouns;
 use crate::nouns::*;
 
 pub struct Peer {
     pub stream: TcpStream,
-}
-
-pub fn read(db: Arc<crate::db::Db>, stream: TcpStream) {
-    let peer = Peer { stream: stream };
-    peer.notice();
-    for line in peer.feed_lines() {
-        let command: command::Command = serde_json::from_str(&line.unwrap()).unwrap();
-        println!("{}", serde_json::to_string(&command).unwrap());
-        do_command(&db, command);
-    }
+    pub db: Arc<db::Db>,
 }
 
 pub fn do_command(db: &crate::db::Db, command: command::Command) {
@@ -104,7 +94,9 @@ impl Peer {
             self.stream.local_addr().unwrap()
         )
     }
-    pub fn feed_lines(self) -> Lines<BufReader<TcpStream>> {
-        BufReader::new(self.stream).lines()
+    pub fn read(&self, line: String) {
+        let command: command::Command = serde_json::from_str(&line).unwrap();
+        println!("{}", serde_json::to_string(&command).unwrap());
+        do_command(&self.db, command);
     }
 }

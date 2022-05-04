@@ -5,6 +5,8 @@ mod peer;
 mod pool;
 mod schema;
 
+use std::io::BufRead;
+use std::io::BufReader;
 use std::sync::Arc;
 
 fn main() {
@@ -19,7 +21,16 @@ fn main() {
         let dbc = db.clone();
         match stream {
             Err(_) => println!("socket accept err"),
-            Ok(stream) => pool.push(|| peer::read(dbc, stream)),
+            Ok(stream) => pool.push(|| {
+                let peer = peer::Peer {
+                    stream: stream,
+                    db: dbc,
+                };
+                peer.notice();
+                for line in BufReader::new(&peer.stream).lines() {
+                    peer.read(line.unwrap())
+                }
+            }),
         }
         println!("threadpool size {}", pool.len())
     }
