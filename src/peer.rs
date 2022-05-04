@@ -5,8 +5,8 @@ use std::net::TcpStream;
 use std::sync::Arc;
 
 use lmdb::Cursor;
-use lmdb::Transaction;
 use lmdb::DatabaseFlags;
+use lmdb::Transaction;
 
 use serde_json;
 
@@ -41,11 +41,19 @@ pub fn write_op(db: &crate::db::Db, noun: &Nouns) {
     if let Some(sch) = schema {
         for index in sch.indexes.iter() {
             println!("before");
-            let index_db = db.env.create_db(Some(&index.name), DatabaseFlags::empty()).unwrap();
+            let index_db = db
+                .env
+                .create_db(Some(&index.name), DatabaseFlags::empty())
+                .unwrap();
             let mut tx = db.env.begin_rw_txn().unwrap();
             println!("after");
             let key = index.get_key(&noun_value);
-            println!("schema found for {} {} {}", noun_name, &index.name, String::from_utf8_lossy(&key));
+            println!(
+                "schema found for {} {} {}",
+                noun_name,
+                &index.name,
+                String::from_utf8_lossy(&key)
+            );
             let result = tx.get(index_db, &key);
             match result {
                 Err(_) => match noun {
@@ -59,7 +67,12 @@ pub fn write_op(db: &crate::db::Db, noun: &Nouns) {
                             .unwrap()
                     }
                 },
-                Ok(v) => println!("{} {:?}: {:?}", index.name, String::from_utf8_lossy(&key), String::from_utf8_lossy(v)),
+                Ok(v) => println!(
+                    "{} {:?}: {:?}",
+                    index.name,
+                    String::from_utf8_lossy(&key),
+                    String::from_utf8_lossy(v)
+                ),
             }
             tx.commit().unwrap();
             dump(&db, &index.name);

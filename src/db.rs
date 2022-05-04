@@ -1,6 +1,6 @@
-use lmdb::{DatabaseFlags, Environment};
-use std::path::Path;
 use crate::schema;
+use lmdb::Environment;
+use std::path::Path;
 
 #[derive(Debug)]
 pub struct Db {
@@ -9,9 +9,13 @@ pub struct Db {
 }
 
 pub fn open() -> Db {
-    let mut builder = lmdb::Environment::new();
-    let wide_builder = builder.set_max_dbs(100);
-    let env = wide_builder.open(Path::new("lmdb-data")).unwrap();
+    let env = lmdb::Environment::new()
+        .set_max_dbs(100)
+        .open(Path::new("lmdb-data"))
+        .unwrap();
     let schemas = schema::from_file("schema.json");
-    return Db { env: env, schemas: schemas };
+    return Db {
+        env: env,
+        schemas: schemas,
+    };
 }
