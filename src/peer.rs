@@ -17,6 +17,13 @@ pub struct Peer {
     pub db: Arc<db::Db>,
 }
 
+pub fn new(stream: TcpStream, db: Arc<db::Db>) -> Peer {
+    Peer {
+        stream: stream,
+        db: db,
+    }
+}
+
 pub fn do_command(db: &crate::db::Db, command: command::Command) {
     match command.verb.as_str() {
         "write" => write_op(db, &command.noun),

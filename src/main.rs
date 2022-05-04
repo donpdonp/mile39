@@ -22,10 +22,7 @@ fn main() {
         match stream {
             Err(_) => println!("socket accept err"),
             Ok(stream) => pool.push(|| {
-                let peer = peer::Peer {
-                    stream: stream,
-                    db: dbc,
-                };
+                let peer = peer::new(stream, dbc);
                 peer.notice();
                 for line in BufReader::new(&peer.stream).lines() {
                     peer.read(line.unwrap())
