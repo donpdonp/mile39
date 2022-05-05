@@ -15,6 +15,9 @@ pub struct Peer {
     pub db: Arc<db::Db>,
 }
 
+type PeerResult = Result<Response, &'static str>;
+pub struct Response {}
+
 pub fn new(db: Arc<db::Db>) -> Peer {
     Peer {
         user_id: None,
@@ -22,14 +25,14 @@ pub fn new(db: Arc<db::Db>) -> Peer {
     }
 }
 
-pub fn do_command(db: &crate::db::Db, command: command::Command) {
+pub fn do_command(db: &crate::db::Db, command: command::Command) -> PeerResult {
     match command.verb.as_str() {
         "write" => write_op(db, &command.noun),
-        _ => (),
+        _ => Err("unknown command"),
     }
 }
 
-pub fn write_op(db: &crate::db::Db, noun: &Nouns) {
+pub fn write_op(db: &crate::db::Db, noun: &Nouns) -> PeerResult {
     let value = serde_json::to_value(noun).unwrap();
     let (noun_name, noun_value) = nouns::name_value(&value);
     let schema = db.schemas.get(&noun_name);
@@ -73,6 +76,7 @@ pub fn write_op(db: &crate::db::Db, noun: &Nouns) {
             dump(&db, &index.name);
         }
     }
+            Ok(Response{})
 }
 
 pub fn dump(db: &crate::db::Db, name: &str) {
@@ -92,9 +96,9 @@ pub fn dump(db: &crate::db::Db, name: &str) {
 }
 
 impl Peer {
-    pub fn read(&self, line: &str) {
+    pub fn command(&self, line: &str) -> PeerResult {
         let command: command::Command = serde_json::from_str(&line).unwrap();
         println!("{}", serde_json::to_string(&command).unwrap());
-        do_command(&self.db, command);
+        do_command(&self.db, command)
     }
 }

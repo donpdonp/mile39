@@ -28,7 +28,7 @@ fn main() {
                 pool.push(|| {
                     let peer = peer::new(dbc);
                     for line in BufReader::new(stream).lines() {
-                        peer.read(&line.unwrap())
+                        peer.command(&line.unwrap()).unwrap();
                     }
                 })
             }

@@ -13,5 +13,5 @@ fn go() {
                              "date":"2022-05-03", 
                              "user_id":"1234-5679"}}
         }"#;
-    peer.read(cmd)
+    peer.command(cmd).unwrap();
 }
