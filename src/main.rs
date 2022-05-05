@@ -21,13 +21,19 @@ fn main() {
         let dbc = db.clone();
         match stream {
             Err(_) => println!("socket accept err"),
-            Ok(stream) => pool.push(|| {
-                let peer = peer::new(stream, dbc);
-                peer.notice();
-                for line in BufReader::new(&peer.stream).lines() {
-                    peer.read(line.unwrap())
-                }
-            }),
+            Ok(stream) => {
+                println!(
+                    "connected from {} to {}",
+                    stream.peer_addr().unwrap(),
+                    stream.local_addr().unwrap()
+                );
+                pool.push(|| {
+                    let peer = peer::new(dbc);
+                    for line in BufReader::new(stream).lines() {
+                        peer.read(line.unwrap())
+                    }
+                })
+            }
         }
         println!("threadpool size {}", pool.len())
     }

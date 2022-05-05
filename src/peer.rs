@@ -1,5 +1,3 @@
-use std::io::Lines;
-use std::net::TcpStream;
 use std::sync::Arc;
 
 use lmdb::Cursor;
@@ -13,13 +11,13 @@ use crate::nouns;
 use crate::nouns::*;
 
 pub struct Peer {
-    pub stream: TcpStream,
+    pub user_id: Option<String>,
     pub db: Arc<db::Db>,
 }
 
-pub fn new(stream: TcpStream, db: Arc<db::Db>) -> Peer {
+pub fn new(db: Arc<db::Db>) -> Peer {
     Peer {
-        stream: stream,
+        user_id: None,
         db: db,
     }
 }
@@ -94,13 +92,6 @@ pub fn dump(db: &crate::db::Db, name: &str) {
 }
 
 impl Peer {
-    pub fn notice(&self) {
-        println!(
-            "connected from {} to {}",
-            self.stream.peer_addr().unwrap(),
-            self.stream.local_addr().unwrap()
-        )
-    }
     pub fn read(&self, line: String) {
         let command: command::Command = serde_json::from_str(&line).unwrap();
         println!("{}", serde_json::to_string(&command).unwrap());
