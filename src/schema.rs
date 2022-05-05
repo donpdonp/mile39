@@ -7,14 +7,20 @@ use std::io::BufReader;
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(transparent)]
 pub struct Schemas {
-    schemas: HashMap<String, Schema>
+    schemas: HashMap<String, Schema>,
 }
 
 impl Schemas {
-    pub fn get(&self, noun: &String) -> Option<&Schema>{
+    pub fn get(&self, noun: &String) -> Option<&Schema> {
         self.schemas.get(noun)
     }
-  pub fn db_name(&self, ) {}   
+    pub fn db_name(&self, noun: &String, index_name: &String) -> String {
+        if self.schemas.contains_key(noun) {
+            noun.to_lowercase() + "." + index_name
+        } else {
+            "error".to_owned()
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

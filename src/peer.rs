@@ -37,16 +37,16 @@ pub fn write_op(db: &crate::db::Db, noun: &Nouns) -> PeerResult {
     let schema = db.schemas.get(&noun_name);
     if let Some(sch) = schema {
         for index in sch.indexes.iter() {
+            let idx_name = db.schemas.db_name(&noun_name, &index.name);
             let index_db = db
                 .env
-                .create_db(Some(&index.name), DatabaseFlags::empty())
+                .create_db(Some(&idx_name), DatabaseFlags::empty())
                 .unwrap();
             let mut tx = db.env.begin_rw_txn().unwrap();
             let key = index.get_key(&noun_value);
             println!(
-                "schema found for {} {} {}",
-                noun_name,
-                &index.name,
+                "{} {}",
+                idx_name,
                 String::from_utf8_lossy(&key)
             );
             let result = tx.get(index_db, &key);

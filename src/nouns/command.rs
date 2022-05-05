@@ -12,4 +12,3 @@ pub struct Command {
 pub struct Response {
     pub msg: String,
 }
-
