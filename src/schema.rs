@@ -4,7 +4,18 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 
-pub type Schemas = HashMap<String, Schema>;
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(transparent)]
+pub struct Schemas {
+    schemas: HashMap<String, Schema>
+}
+
+impl Schemas {
+    pub fn get(&self, noun: &String) -> Option<&Schema>{
+        self.schemas.get(noun)
+    }
+  pub fn db_name(&self, ) {}   
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Schema {
@@ -43,7 +54,7 @@ pub fn from_file(filename: &str) -> Schemas {
 
     // Read the JSON contents of the file as an instance of `User`.
     let schemas: Schemas = serde_json::from_reader(reader).unwrap();
-    for part in &schemas {
+    for part in &schemas.schemas {
         println!("schema {:?}", part);
     }
     schemas
