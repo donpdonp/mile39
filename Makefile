@@ -7,7 +7,7 @@ run: all
 	./target/debug/mile39
 
 format:
-	find src -type f -exec rustfmt {} \;
+	find src tests -type f -exec rustfmt {} \;
 
 test:
 	cargo test
