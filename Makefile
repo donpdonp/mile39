@@ -1,4 +1,4 @@
-.PHONY: all
+.PHONY: all test
 	
 all:
 	cargo build
@@ -9,3 +9,5 @@ run: all
 format:
 	find src -type f -exec rustfmt {} \;
 
+test:
+	cargo test

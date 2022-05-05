@@ -1,9 +1,7 @@
-mod db;
-mod net;
-mod nouns;
-mod peer;
-mod pool;
-mod schema;
+use mile39::db;
+use mile39::net;
+use mile39::peer;
+use mile39::pool;
 
 use std::io::BufRead;
 use std::io::BufReader;
@@ -30,7 +28,7 @@ fn main() {
                 pool.push(|| {
                     let peer = peer::new(dbc);
                     for line in BufReader::new(stream).lines() {
-                        peer.read(line.unwrap())
+                        peer.read(&line.unwrap())
                     }
                 })
             }

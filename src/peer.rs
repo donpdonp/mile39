@@ -92,7 +92,7 @@ pub fn dump(db: &crate::db::Db, name: &str) {
 }
 
 impl Peer {
-    pub fn read(&self, line: String) {
+    pub fn read(&self, line: &str) {
         let command: command::Command = serde_json::from_str(&line).unwrap();
         println!("{}", serde_json::to_string(&command).unwrap());
         do_command(&self.db, command);
