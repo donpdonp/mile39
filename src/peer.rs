@@ -16,7 +16,9 @@ pub struct Peer {
 }
 
 type PeerResult = Result<Response, &'static str>;
-pub struct Response {}
+pub struct Response {
+    pub msg: String,
+}
 
 pub fn new(db: Arc<db::Db>) -> Peer {
     Peer {
@@ -76,7 +78,9 @@ pub fn write_op(db: &crate::db::Db, noun: &Nouns) -> PeerResult {
             dump(&db, &index.name);
         }
     }
-            Ok(Response{})
+    Ok(Response {
+        msg: "ok".to_string(),
+    })
 }
 
 pub fn dump(db: &crate::db::Db, name: &str) {

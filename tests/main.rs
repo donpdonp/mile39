@@ -13,5 +13,6 @@ fn go() {
                              "date":"2022-05-03", 
                              "user_id":"1234-5679"}}
         }"#;
-    peer.command(cmd).unwrap();
+    let result = peer.command(cmd).unwrap();
+    assert_eq!("ok", result.msg);
 }

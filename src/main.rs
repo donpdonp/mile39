@@ -5,6 +5,7 @@ use mile39::pool;
 
 use std::io::BufRead;
 use std::io::BufReader;
+use std::io::Write;
 use std::sync::Arc;
 
 fn main() {
@@ -19,16 +20,18 @@ fn main() {
         let dbc = db.clone();
         match stream {
             Err(_) => println!("socket accept err"),
-            Ok(stream) => {
+            Ok(mut stream) => {
                 println!(
                     "connected from {} to {}",
                     stream.peer_addr().unwrap(),
                     stream.local_addr().unwrap()
                 );
-                pool.push(|| {
+                pool.push(move || {
                     let peer = peer::new(dbc);
-                    for line in BufReader::new(stream).lines() {
-                        peer.command(&line.unwrap()).unwrap();
+                    let reader = BufReader::new(stream.try_clone().unwrap());
+                    for line in reader.lines() {
+                        let _result = peer.command(&line.unwrap()).unwrap();
+                        stream.write(b"ok").unwrap();
                     }
                 })
             }
