@@ -1,6 +1,6 @@
+use crate::nouns::*;
 use mile39::*;
 use std::sync::Arc;
-use crate::nouns::*;
 
 #[test]
 fn write() {

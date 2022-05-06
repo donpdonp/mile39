@@ -6,6 +6,7 @@ use std::path::Path;
 pub struct Db {
     pub env: Environment,
     pub schemas: schema::Schemas,
+    pub file_path: String,
 }
 
 pub fn open() -> Db {
@@ -17,5 +18,12 @@ pub fn open() -> Db {
     return Db {
         env: env,
         schemas: schemas,
+        file_path: "jsonlake".to_owned(),
     };
+}
+
+impl Db {
+    pub fn file_from_id(&self, id: &String) -> String {
+        format!("{}/{}", self.file_path, id)
+    }
 }

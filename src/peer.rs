@@ -1,3 +1,4 @@
+use std::fs::File;
 use std::sync::Arc;
 
 use lmdb::Cursor;
@@ -24,31 +25,35 @@ pub fn new(db: Arc<db::Db>) -> Peer {
     }
 }
 
-pub fn do_command(db: &crate::db::Db, command: command::Command) -> PeerResult {
-    match command.verb.as_str() {
-        "write" => match &command.noun {
-            Some(noun) => write_op(db, noun),
-            None => Err("write but no noun"),
-        },
-        "read" => match &command.id {
-            Some(id) => read_op(db, id),
-            None => Err("read but no id"),
-        },
-        _ => Err("unknown command"),
+impl Peer {
+    pub fn command(&self, line: &str) -> PeerResult {
+        let command: command::Command = serde_json::from_str(&line).unwrap();
+        println!("{}", serde_json::to_string(&command).unwrap());
+        self.do_command(command)
+    }
+    pub fn do_command(&self, command: command::Command) -> PeerResult {
+        match command.verb.as_str() {
+            "write" => match &command.noun {
+                Some(noun) => write_op(&self.db, noun),
+                None => Err("write but no noun"),
+            },
+            "read" => match &command.id {
+                Some(id) => read_op(&self.db, id),
+                None => Err("read but no id"),
+            },
+            _ => Err("unknown command"),
+        }
     }
 }
 
 pub fn read_op(db: &crate::db::Db, id: &String) -> PeerResult {
-    println!("read: {}", id);
+    let path = db.file_from_id(id);
+    println!("read: {}", path);
+    let noun: nouns::Nouns =
+        serde_json::from_reader(File::open(db.file_from_id(&path)).unwrap()).unwrap();
     Ok(command::Response {
         msg: "ok".to_string(),
-        noun: Some(nouns::Nouns::Location(location::Location {
-            id: id.to_owned(),
-            lat: 1.0,
-            lng: 2.0,
-            date: "boo".to_string(),
-            user_id: "za".to_string(),
-        })),
+        noun: Some(noun),
     })
 }
 
@@ -109,13 +114,5 @@ pub fn dump(db: &crate::db::Db, name: &str) {
             let v = String::from_utf8_lossy(kv.1);
             println!("{} {:?} {:?}", count, k, v);
         }
-    }
-}
-
-impl Peer {
-    pub fn command(&self, line: &str) -> PeerResult {
-        let command: command::Command = serde_json::from_str(&line).unwrap();
-        println!("{}", serde_json::to_string(&command).unwrap());
-        do_command(&self.db, command)
     }
 }
