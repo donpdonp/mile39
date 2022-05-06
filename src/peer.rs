@@ -1,3 +1,4 @@
+use std::fs;
 use std::fs::File;
 use std::sync::Arc;
 
@@ -53,7 +54,10 @@ pub fn read_op(db: &crate::db::Db, id: &String) -> PeerResult {
     })
 }
 pub fn write_op(db: &crate::db::Db, noun: &Nouns) -> PeerResult {
-    db.write(noun);
+    let id = db.write(noun);
+    let path = db.file_from_id(&id);
+    println!("read: {}", path);
+    fs::write(path, serde_json::to_string(noun).unwrap()).unwrap();
     Ok(command::Response {
         msg: "ok".to_string(),
         noun: None,

@@ -33,7 +33,7 @@ impl Db {
         format!("{}/{}", self.file_path, id)
     }
 
-    pub fn write(&self, noun: &Nouns) {
+    pub fn write(&self, noun: &Nouns) -> String {
         let value = serde_json::to_value(noun).unwrap();
         let (noun_name, noun_value) = nouns::name_value(&value);
         let schema = self.schemas.get(&noun_name);
@@ -71,6 +71,7 @@ impl Db {
                 self.dump(&index.name);
             }
         }
+        noun_value.get("id").unwrap().as_str().unwrap().to_string()
     }
 
     pub fn dump(&self, name: &str) {
