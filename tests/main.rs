@@ -1,5 +1,6 @@
 use mile39::*;
 use std::sync::Arc;
+use crate::nouns::*;
 
 #[test]
 fn write() {
@@ -22,4 +23,10 @@ fn write() {
         }"#;
     let result = peer.command(cmd).unwrap();
     assert_eq!("ok", result.msg);
+    let noun = result.noun.unwrap();
+    match noun {
+        Nouns::Location(loc) => {
+            assert_eq!("boo", loc.date)
+        }
+    }
 }
