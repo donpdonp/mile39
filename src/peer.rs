@@ -26,9 +26,30 @@ pub fn new(db: Arc<db::Db>) -> Peer {
 
 pub fn do_command(db: &crate::db::Db, command: command::Command) -> PeerResult {
     match command.verb.as_str() {
-        "write" => write_op(db, &command.noun),
+        "write" => match &command.noun {
+            Some(noun) => write_op(db, noun),
+            None => Err("write but no noun"),
+        },
+        "read" => match &command.id {
+            Some(id) => read_op(db, id),
+            None => Err("read but no id"),
+        },
         _ => Err("unknown command"),
     }
+}
+
+pub fn read_op(db: &crate::db::Db, id: &String) -> PeerResult {
+    println!("read: {}", id);
+    Ok(command::Response {
+        msg: "ok".to_string(),
+        noun: Some(nouns::Nouns::Location(location::Location {
+            id: id.to_owned(),
+            lat: 1.0,
+            lng: 2.0,
+            date: "boo".to_string(),
+            user_id: "za".to_string(),
+        })),
+    })
 }
 
 pub fn write_op(db: &crate::db::Db, noun: &Nouns) -> PeerResult {
@@ -44,11 +65,7 @@ pub fn write_op(db: &crate::db::Db, noun: &Nouns) -> PeerResult {
                 .unwrap();
             let mut tx = db.env.begin_rw_txn().unwrap();
             let key = index.get_key(&noun_value);
-            println!(
-                "{} {}",
-                idx_name,
-                String::from_utf8_lossy(&key)
-            );
+            println!("{} {}", idx_name, String::from_utf8_lossy(&key));
             let result = tx.get(index_db, &key);
             match result {
                 Err(_) => match noun {
@@ -75,6 +92,7 @@ pub fn write_op(db: &crate::db::Db, noun: &Nouns) -> PeerResult {
     }
     Ok(command::Response {
         msg: "ok".to_string(),
+        noun: None,
     })
 }
 
