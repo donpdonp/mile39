@@ -2,8 +2,11 @@ use crate::nouns::*;
 use mile39::*;
 use std::sync::Arc;
 
+mod common;
+
 #[test]
 fn write() {
+    common::setup();
     let db = mile39::db::open();
     let peer = peer::new(Arc::new(db));
     let cmd = r#"
@@ -26,7 +29,7 @@ fn write() {
     let noun = result.noun.unwrap();
     match noun {
         Nouns::Location(loc) => {
-            assert_eq!("boo", loc.date)
+            assert_eq!("2022-05-03", loc.date)
         }
     }
 }
