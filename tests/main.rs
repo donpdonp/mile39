@@ -9,22 +9,29 @@ fn write() {
     common::setup();
     let db = mile39::db::open();
     let peer = peer::new(Arc::new(db));
-    let cmd = r#"
-        {"verb":"write", 
-         "noun":{"Location":{"id":"ab13", 
-                             "lat":1, 
-                             "lng":2, 
-                             "date":"2022-05-03", 
-                             "user_id":"1234-5679"}}
-        }"#;
-    let result = peer.command(cmd).unwrap();
+    let location = location::Location {
+        id: common::id_generate(),
+        lat: 1.0,
+        lng: 2.0,
+        date: "2022-05-02".to_owned(),
+        user_id: "Abc".to_owned(),
+    };
+    let cmd = command::Command {
+        verb: "write".to_owned(),
+        noun: Some(Nouns::Location(location)),
+        id: None
+    };
+    let json = serde_json::to_string(&cmd).unwrap();
+    let result = peer.command(&json).unwrap();
     assert_eq!("ok", result.msg);
 
-    let cmd = r#"
-        {"verb":"read", 
-         "id":"ab13" 
-        }"#;
-    let result = peer.command(cmd).unwrap();
+    let cmd = command::Command {
+        verb: "read".to_owned(),
+        noun: None,
+        id: Some("ab13".to_owned())
+    };
+    let json = serde_json::to_string(&cmd).unwrap();
+    let result = peer.command(&json).unwrap();
     assert_eq!("ok", result.msg);
     let noun = result.noun.unwrap();
     match noun {
