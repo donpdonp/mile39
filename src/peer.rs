@@ -13,7 +13,7 @@ pub struct Peer {
     pub db: Arc<db::Db>,
 }
 
-type PeerResult = Result<command::Response, &'static str>;
+type PeerResult = Result<command::Response, String>;
 
 pub fn new(db: Arc<db::Db>) -> Peer {
     Peer {
@@ -39,19 +39,25 @@ impl Peer {
 
 pub fn read_op(db: &crate::db::Db, query: &command::QueryById) -> PeerResult {
     let path = db.file_from_id(&query.id);
-    println!("read: {}", path);
-    let reader = File::open(path).unwrap();
-    let noun: nouns::Nouns = serde_json::from_reader(reader).unwrap();
-    Ok(command::Response {
-        msg: "ok".to_string(),
-        noun: Some(noun),
-    })
+    match File::open(&path) {
+        Ok(reader) => {
+            let noun: nouns::Nouns = serde_json::from_reader(reader).unwrap();
+            Ok(command::Response {
+                msg: "ok".to_string(),
+                noun: Some(noun),
+            })
+        }
+        Err(e) => {
+            println!("read_op: {} {}", path, e);
+            Err(e.to_string())
+        }
+    }
 }
+
 pub fn write_op(db: &crate::db::Db, location: location::Location) -> PeerResult {
     let wrapped_location = &Nouns::Location(location);
     let id = db.write(&wrapped_location);
     let path = db.file_from_id(&id);
-    println!("read: {}", path);
     fs::write(path, serde_json::to_string(&wrapped_location).unwrap()).unwrap();
     Ok(command::Response {
         msg: "ok".to_string(),
