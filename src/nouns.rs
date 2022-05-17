@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-pub mod command;
 pub mod location;
 
 #[derive(Serialize, Deserialize)]
