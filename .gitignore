@@ -1,3 +1,4 @@
 /target
 /lmdb-data
 /jsonlake
+/Cargo.lock
