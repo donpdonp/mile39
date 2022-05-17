@@ -1,4 +1,5 @@
-use lmdb::*;
+use lmdb;
+use lmdb::{Transaction,Cursor};
 use std::path::Path;
 
 use crate::nouns;
@@ -30,8 +31,8 @@ pub fn open() -> Db {
     };
 }
 
-pub fn ensure_dir(dir: &str) -> Result<()> {
-    fs::create_dir_all(dir)
+pub fn ensure_dir(dir: &str) -> Result<(), std::io::Error> {
+    std::fs::create_dir_all(dir)
 }
 
 impl Db {
