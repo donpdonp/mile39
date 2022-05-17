@@ -29,7 +29,7 @@ fn write_one_read_one() {
     let noun = result.noun.unwrap();
     match noun {
         Nouns::Location(loc) => {
-            assert_eq!("2022-05-03", loc.date)
+            assert_eq!("2022-05-02", loc.date)
         }
     }
 }
