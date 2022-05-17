@@ -13,16 +13,25 @@ pub struct Db {
 }
 
 pub fn open() -> Db {
+    let data_dir = "lmdb-data";
+    ensure_dir(data_dir).unwrap();
+    let json_dir = "jsonlake";
+    ensure_dir(json_dir).unwrap();
+    let schema_json = "schema.json";
     let env = lmdb::Environment::new()
         .set_max_dbs(100)
-        .open(Path::new("lmdb-data"))
+        .open(Path::new(data_dir))
         .unwrap();
-    let schemas = schema::from_file("schema.json");
+    let schemas = schema::from_file(schema_json);
     return Db {
         env: env,
         schemas: schemas,
-        file_path: "jsonlake".to_owned(),
+        file_path: json_dir.to_owned(),
     };
+}
+
+pub fn ensure_dir(dir: &str) -> Result<()> {
+    return Ok(())
 }
 
 impl Db {
