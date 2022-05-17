@@ -1,8 +1,0 @@
-{"Location" :{
-    "indexes": [
-      {"name":"date", "fields":["date"], "options":{ "multi": true }},
-      {"name":"user_id_date", "fields":["user_id", "date"], "options":{} }
-    ]
-}}
-
-
