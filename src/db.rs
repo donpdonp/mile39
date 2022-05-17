@@ -31,7 +31,7 @@ pub fn open() -> Db {
 }
 
 pub fn ensure_dir(dir: &str) -> Result<()> {
-    return Ok(())
+    fs::create_dir_all(dir)
 }
 
 impl Db {
