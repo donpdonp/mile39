@@ -35,7 +35,7 @@ fn write_one_read_one() {
 }
 
 #[test]
-fn write_many_read_many() {
+fn write_many_read_by_id() { 
     let db = mile39::db::open();
     let peer = peer::new(Arc::new(db));
     let locations = common::random_locations(10);

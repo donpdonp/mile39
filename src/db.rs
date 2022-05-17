@@ -68,7 +68,7 @@ impl Db {
                     ),
                 }
                 tx.commit().unwrap();
-                self.dump(&index.name);
+                self.dump(&idx_db_name);
             }
         }
         noun_value.get("id").unwrap().as_str().unwrap().to_string()
