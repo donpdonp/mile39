@@ -1,5 +1,5 @@
 use lmdb;
-use lmdb::{Transaction,Cursor};
+use lmdb::{Cursor, Transaction};
 use std::path::Path;
 
 use crate::nouns;
@@ -19,11 +19,12 @@ pub fn open() -> Db {
     let json_dir = "jsonlake";
     ensure_dir(json_dir).unwrap();
     let schema_json = "schema.json";
+    let schemas = schema::from_file(schema_json);
+    let schemas_count: u32 = schemas.len().try_into().unwrap();
     let env = lmdb::Environment::new()
-        .set_max_dbs(100)
+        .set_max_dbs(schemas_count + 1)
         .open(Path::new(data_dir))
         .unwrap();
-    let schemas = schema::from_file(schema_json);
     return Db {
         env: env,
         schemas: schemas,

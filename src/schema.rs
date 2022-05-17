@@ -11,6 +11,9 @@ pub struct Schemas {
 }
 
 impl Schemas {
+    pub fn len(&self) -> usize {
+        self.schemas.len() + 1
+    }
     pub fn get(&self, noun: &String) -> Option<&Schema> {
         self.schemas.get(noun)
     }
