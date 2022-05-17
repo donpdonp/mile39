@@ -35,7 +35,7 @@ fn write_one_read_one() {
 }
 
 #[test]
-fn write_many_read_by_id() { 
+fn write_many_read_by_id() {
     let db = mile39::db::open();
     let peer = peer::new(Arc::new(db));
     let locations = common::random_locations(10);
@@ -50,14 +50,14 @@ fn write_many_read_by_id() {
         assert_eq!("ok", result.msg);
     }
     for location in &locations {
-    let cmd = command::Commands::Read(command::Read {
-        id: "ab13".to_owned(),
-        params: command::QueryById {
-            id: location.id.to_owned(),
-        },
-    });
-    let json = serde_json::to_string(&cmd).unwrap();
-    let result = peer.command(&json).unwrap();
-    assert_eq!("ok", result.msg);
+        let cmd = command::Commands::Read(command::Read {
+            id: "ab13".to_owned(),
+            params: command::QueryById {
+                id: location.id.to_owned(),
+            },
+        });
+        let json = serde_json::to_string(&cmd).unwrap();
+        let result = peer.command(&json).unwrap();
+        assert_eq!("ok", result.msg);
     }
 }

@@ -6,7 +6,7 @@ use crate::nouns::*;
 #[serde(tag = "method")]
 pub enum Commands {
     Read(Read),
-    Write(Write)
+    Write(Write),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -22,7 +22,7 @@ pub struct Read {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct QueryById{
+pub struct QueryById {
     pub id: String,
 }
 

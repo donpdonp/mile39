@@ -1,7 +1,4 @@
-use lmdb::Cursor;
-use lmdb::DatabaseFlags;
-use lmdb::Environment;
-use lmdb::Transaction;
+use lmdb::*;
 use std::path::Path;
 
 use crate::nouns;
@@ -10,7 +7,7 @@ use crate::schema;
 
 #[derive(Debug)]
 pub struct Db {
-    pub env: Environment,
+    pub env: lmdb::Environment,
     pub schemas: schema::Schemas,
     pub file_path: String,
 }
@@ -42,7 +39,7 @@ impl Db {
                 let idx_db_name = self.schemas.db_name(&noun_name, &index.name);
                 let index_db = self
                     .env
-                    .create_db(Some(&idx_db_name), DatabaseFlags::empty())
+                    .create_db(Some(&idx_db_name), lmdb::DatabaseFlags::empty())
                     .unwrap();
                 let mut tx = self.env.begin_rw_txn().unwrap();
                 let key = index.get_key(&noun_value);
