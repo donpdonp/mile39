@@ -4,7 +4,7 @@ all:
 	cargo build
 
 format:
-	find src tests -type f -exec rustfmt {} \;
+	find src -type f -exec rustfmt {} \;
 
 test:
 	cargo test
